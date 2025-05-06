@@ -26,7 +26,7 @@ app.include_router(iRouter)
 app.include_router(uRouter)
 
 async def main():
-    connectionDB
+     connectionDB()
 
 #- - - - - http://127.0.0.1:8000/login - - - - - #
 

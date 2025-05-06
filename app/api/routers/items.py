@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
-import crud_items
-from schemas_items import Task
+import app.crud.items
+from app.schemas.items import Task
 
 router = APIRouter(prefix="/items", tags=["Items"])
 
@@ -17,5 +17,5 @@ async def readTask(id: int):
     return "task"
 
 @router.post("/new_task")
-async def createTask(task:Task):
+async def addTask(task:Task):
     crud_items.insertTask(task)

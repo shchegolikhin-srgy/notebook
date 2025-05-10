@@ -1,29 +1,157 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Authorization Form</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Вход / Регистрация</title>
+  <style>
+    :root {
+      --primary-color: #007BFF;
+      --background-color: #f4f4f4;
+      --container-bg: white;
+      --text-color: #333;
+      --border-radius: 8px;
+      --shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      background-color: var(--background-color);
+      margin: 0;
+      padding: 20px;
+      color: var(--text-color);
+    }
+
+    .form-container {
+      max-width: 500px;
+      width: 95%;
+      margin: auto;
+      background: var(--container-bg);
+      padding: 30px;
+      border-radius: var(--border-radius);
+      box-shadow: var(--shadow);
+    }
+
+    h2 {
+      text-align: center;
+      color: var(--primary-color);
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      margin-top: 15px;
+      font-weight: bold;
+    }
+
+    input[type="text"],
+    input[type="password"],
+    input[type="email"] {
+      width: 100%;
+      padding: 10px;
+      margin-top: 5px;
+      border: 1px solid #ccc;
+      border-radius: var(--border-radius);
+      font-size: 16px;
+    }
+
+    button[type="submit"] {
+      margin-top: 20px;
+      width: 100%;
+      padding: 12px;
+      font-size: 16px;
+      cursor: pointer;
+      background-color: var(--primary-color);
+      color: white;
+      border: none;
+      border-radius: var(--border-radius);
+      transition: background 0.3s ease;
+    }
+
+    button[type="submit"]:hover {
+      background-color: #0056b3;
+    }
+
+    .switch-link {
+      text-align: center;
+      margin-top: 15px;
+    }
+
+    .switch-link a {
+      color: var(--primary-color);
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    .switch-link a:hover {
+      text-decoration: underline;
+    }
+
+    #register-form {
+      display: none;
+    }
+
+    @media (max-width: 600px) {
+      .form-container {
+        padding: 20px;
+      }
+    }
+  </style>
 </head>
 <body>
-    <h2>Login</h2>
-    <form id="loginForm" action="/auth" method="POST">
-        <label for="username">Username:</label><br>
-        <input type="text" id="username" name="username" required><br><br>
 
-        <label for="password">Password:</label><br>
-        <input type="password" id="password" name="password" required><br><br>
+  <div class="form-container" id="auth-container">
+    <div id="login-form">
+      <h2>Войти в аккаунт</h2>
+      <form action="/users/auth"  id = "loginForm" method="post">
+        <label for="login_username">Имя пользователя</label>
+        <input type="text" id="login_username" name="username" required />
+        <label for="login_password">Пароль</label>
+        <input type="password" id="login_password" name="password" required />
 
-        <button type="submit">Login</button>
-    </form>
+        <button type="submit">Войти</button>
+      </form>
+      <div class="switch-link">
+        Нет аккаунта? <a onclick="toggleForms()">Зарегистрироваться</a>
+      </div>
+    </div>
 
-    <script>
-        document.getElementById('loginForm').addEventListener('submit', function (event) {
+    <div id="register-form">
+      <h2>Создать аккаунт</h2>
+      <form action="/users/new_user"  id = "registerForm" method="post">
+        <label for="username">Имя пользователя</label>
+        <input type="text" id="username" name="username" required minlength="3" maxlength="20"/>
+
+        <label for="password">Пароль</label>
+        <input type="password" id="password" name="password" required minlength="4"/>
+
+        <button type="submit">Зарегистрироваться</button>
+      </form>
+      <div class="switch-link">
+        Уже есть аккаунт? <a onclick="toggleForms()">Войти</a>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function toggleForms() {
+      const loginForm = document.getElementById("login-form");
+      const registerForm = document.getElementById("register-form");
+
+      if (loginForm.style.display === "none") {
+        loginForm.style.display = "block";
+        registerForm.style.display = "none";
+      } else {
+        loginForm.style.display = "none";
+        registerForm.style.display = "block";
+      }
+    }
+    document.getElementById('loginForm').addEventListener('submit', function (event) {
             event.preventDefault();
 
             const formData = new FormData(this);
 
-            fetch('/auth/data', {
+            fetch('/users/auth', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -45,6 +173,35 @@
             })
             .catch(error => console.error('Error:', error));
         });
-    </script>
+
+        document.getElementById('registerForm').addEventListener('submit', function (event) {
+            event.preventDefault();
+
+            const formData = new FormData(this);
+
+            fetch('/users/new_user', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-Token': '{{ csrf_token }}' 
+                },
+                body: JSON.stringify({
+                    username: formData.get('username'),
+                    password: formData.get('password')
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    alert('Login successful!');
+                    window.location.href = '/login'; 
+                } else {
+                    alert(data.status);
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        });
+  </script>
+
 </body>
 </html>

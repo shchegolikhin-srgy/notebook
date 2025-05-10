@@ -1,40 +1,46 @@
 import asyncpg
-from app.db.base import pool
+from app.db.base import get_db_connection
 from app.schemas.users import User
+from argon2 import PasswordHasher
 
-async def insertUser(user:User):
-    async with pool.acquire() as conn:
-        await conn.execute("INSERT INTO users (username, password) VALUES(%s, %s);", (
+ph = PasswordHasher()
+
+async def delete_user(user:User):
+    async with get_db_connection() as connection:
+        hash = ph.hash(user.password)
+        await connection.execute("DELETE FROM users WHERE username =$1 AND hashed_password= $2;", 
             user.username, 
-            user.password
-        ))
+            hash
+        )
 
-async def deleteUser(user:User):
-    async with pool.acquire() as conn:
-        await conn.execute("DELETE FROM users WHERE username =%s AND password = %s;", (
+async def check_exist_user(username):
+    async with get_db_connection() as connection:
+        result =await connection.fetchval("SELECT id FROM users WHERE username =$1;", 
+            username
+        )
+        return result !=None
+
+async def check_user(user:User):
+    async with get_db_connection() as connection:
+        hash = ph.hash(user.password)
+        result = await connection.fetchval("SELECT id FROM users WHERE username =$1 AND hashed_password = $2;", 
             user.username, 
-            user.password
-        ))
-
-async def checkExistUser(usesname):
-    async with pool.acquire() as conn:
-        result await conn.fetch("SELECT id FROM users WHERE username =%s;", (
-            user.username,
-            user.password
-        ))
-        return result != None
-
-async def checkUser(user:User):
-    async with pool.acquire() as conn:
-        result = await conn.fetchrow("SELECT id FROM users WHERE username =%s AND password = %s;", (
-            user.username, 
-            user.password
-        ))
-        existUser= await checkExistUser(user.username)
-
-        if userExist == false:
-            return "User doesnt exist"
-        elif result = None:
+            hash
+        )
+        existUser= await check_exist_user(user.username)
+        if result == None:
             return "Invalid username or password"
-        else
+        else:
             return "success"
+
+async def add_user(user:User):
+    async with get_db_connection() as connection:
+        hash = ph.hash(user.password)
+        if await check_exist_user(user.username) ==False:
+            await connection.execute("INSERT INTO users (username, hashed_password) VALUES($1, $2);", 
+                user.username, 
+                hash
+            )
+            return "user created"
+        else:
+            return "user not created"

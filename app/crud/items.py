@@ -1,30 +1,43 @@
 import asyncpg
-from app.db.base import pool
+from app.db.base import get_db_connection
 from app.schemas.items import Task
 
-async def getTasks(userId):
-    async with pool.acquire() as conn:
-        result=await conn.fetch("SELECT text, completed FROM tasks  WHERE user_id = %i;", (userId))
+async def get_tasks(userId):
+    async with get_db_connection() as connection:
+        result=await connection.fetch("SELECT text, completed FROM tasks  WHERE user_id = $1;", userId)
         return result
 
-async def addTask(task:Task, userId):
-    async with pool.acquire() as conn:
-        await conn.execute("INSERT INTO tasks (text, completed, user_id) VALUES (%s, %b, %i);", (
+async def add_task(task:Task):
+    async with get_db_connection() as connection:
+        await connection.execute("INSERT INTO tasks (text, completed, user_id) VALUES ($1, $2, $3);", 
             task.text,
-            false,
-            userId
-        ))
+            task.isCompleted,
+            task.userId
+        )
+        return {"status": "success"}
 
-async def deleteTask(task:Task, userId):
-    async with pool.acquire() as conn:
-        await conn.execute("DELETE FROM tasks WHERE text =%s AND user_id = %i;", (
+async def delete_task(task:Task):
+    async with get_db_connection() as connection:
+        await connection.execute("DELETE FROM tasks WHERE text =$1 AND user_id = $2;",
             task.text, 
-            userId
-        ))
+            task.userId
+        )
+        return { "status": "success"}
 
-async def updateTask(task:Task, userId):
-    async with pool.acquire() as conn:
-        await conn.execute("UPDATE tasks SET text = 'text 2' WHERE text =%s AND user_id = %i;", (
+async def update_task(task:Task, text:str):
+    async with get_db_connection() as connection:
+        await connection.execute("UPDATE tasks SET text = $1 WHERE text =$2 AND user_id = $3;", 
+            text,
             task.text, 
-            userId
-        ))
+            task.userId
+        )
+        return { "status": "success"}
+
+async def toggle_complete_task(task:Task, isCompleted:bool):
+    async with get_db_connection() as connection:
+        await connection.execute("UPDATE tasks SET completed =$1 WHERE text =$2 AND user_id = $3;", 
+            isCompleted,
+            task.text, 
+            task.userId
+        )
+        return { "status": "success"}

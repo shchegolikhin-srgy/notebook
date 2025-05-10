@@ -1,21 +1,30 @@
 from fastapi import APIRouter, Depends, HTTPException
-import app.crud.items
+import app.crud.items as crud
 from app.schemas.items import Task
 
 router = APIRouter(prefix="/items", tags=["Items"])
 
 @router.post("/delete_task")
-async def deleteTask(task:Task):
-    return "delete task"
+async def delete_task(task:Task):
+    await crud.delete_task(task)
+    return { "status": "success"}
 
 @router.post("/update_task")
-async def updateTask(task:Task):
-    return "update"
+async def update_task(task:Task):
+    await crud.update_task(task)
+    return { "status": "success"}
 
-@router.post("/read_tasks")
-async def readTask(id: int):
-    return "task"
+@router.get("/read_tasks")
+async def read_tasks(userId: int):
+    response = await crud.get_tasks()
+    return { "status": "success"}
 
 @router.post("/new_task")
-async def addTask(task:Task):
-    crud_items.insertTask(task)
+async def add_task(task:Task):
+    await crud.add_task(task)
+    return { "status": "success"}
+
+@router.post("/toggle_task")
+async def toggle_complete_task(task:Task):
+    await crud.toggle_complete_task(task)
+    return { "status": "success"}

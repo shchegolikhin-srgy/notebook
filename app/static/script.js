@@ -8,7 +8,7 @@ async function addNoteServer(newNote){
       "Content-Type": "application/json"
     },
     body: JSON.stringify({
-      userId: newNote.id,
+      userId: 3,
       text: newNote.text,
       isCompleted: newNote.isCompleted
     })
@@ -17,14 +17,35 @@ async function addNoteServer(newNote){
   .then(data => console.log(data))
   .catch(error => console.error('Ошибка:', error));   
 }
-
+async function toggleCompleteServer(id){
+  const note = notes.find(n => n.id === id);
+  fetch("/items/toggle_task", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      userId: 3,
+      text: note.text,
+      isCompleted: note.completed
+    })
+  })
+  .then(response => response.json())
+  .then(data => console.log(data))
+  .catch(error => console.error('Ошибка:', error));   
+}
 async function deleteNoteServer(id) {
+  const note = notes.find(n => n.id === id);
   fetch("/items/delete_task", {
     method: "POST",
     headers: {
       "Content-Type": "application/json"
     },
-    body: JSON.stringify({ id: id})
+    body: JSON.stringify({
+      userId: 1,
+      text: note.text,
+      isCompleted: note.isCompleted
+    })
   })
   .then(response => response.json())
   .then(data => console.log(data))
@@ -106,6 +127,7 @@ async function toggleComplete(id) {
   const note = notes.find(n => n.id === id);
   if (note) {
     note.completed = !note.completed;
+    await toggleCompleteServer(id)
     saveNotes();
     renderNotes();
   }
@@ -127,7 +149,7 @@ async function editNote(id) {
 
 async function deleteNote(id) {
   if (confirm("Вы уверены, что хотите удалить эту заметку?")) {
-    await deleteNoteServer(id)
+    await deleteNoteServer(id);
     notes = notes.filter(n => n.id !== id);
     saveNotes();
     renderNotes();
@@ -135,4 +157,3 @@ async function deleteNote(id) {
 }
 
 loadNotes();
-

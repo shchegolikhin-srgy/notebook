@@ -30,8 +30,6 @@ templates = Jinja2Templates(directory="app/templates")
 app.include_router(itemsRouter)
 app.include_router(usersRouter)
 
-#- - - - - http://127.0.0.1:8000/login - - - - - #
-
 @app.get("/login")
 async def login(request: Request):
     return templates.TemplateResponse("login.html", {"request": request})
@@ -39,9 +37,3 @@ async def login(request: Request):
 @app.get("/")
 async def home(request: Request):
     return templates.TemplateResponse("index.html", {"request": request})
-
-#- - - - - http://127.0.0.1:8000 - - - - - #
-
-
-# source .venv/bin/activate
-# uvicorn app.main:app --reload 

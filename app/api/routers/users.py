@@ -13,9 +13,9 @@ limiter = Limiter(key_func=get_remote_address)
 async def auth(user: User, request: Request): 
     is_login = await crud.check_user(user)
     if is_login == "success":
-        return { detail: "success"}
+        return { "status": "success"}
     else:
-        raise HTTPException(status_code=401, detail="Invalid username or password")
+        raise HTTPException(status_code=401, detail=is_login)
 
 @router.post("/new_user")
 @limiter.limit("3/minute", methods=["POST"])

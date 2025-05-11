@@ -15,19 +15,22 @@ body {
   color: var(--text-color);
 }
 
-.container {
+.container,
+.form-container {
   max-width: 600px;
   width: 95%;
   margin: auto;
   background: var(--container-bg);
-  padding: 20px;
+  padding: 20px 20px 30px;
   border-radius: var(--border-radius);
   box-shadow: var(--shadow);
 }
 
-h1, h2 {
+h1,
+h2 {
   text-align: center;
   color: var(--primary-color);
+  margin-bottom: 20px;
 }
 
 .input-group {
@@ -37,12 +40,16 @@ h1, h2 {
   margin-bottom: 20px;
 }
 
-.input-group input {
+.input-group input,
+input[type="text"],
+input[type="password"],
+input[type="email"] {
   flex: 1 1 100%;
   padding: 10px;
   font-size: 16px;
   border: 1px solid #ccc;
   border-radius: var(--border-radius);
+  width: 100%;
 }
 
 .input-group button,
@@ -87,30 +94,29 @@ li .actions button:hover {
   background-color: #c82333;
 }
 
-form {
-  max-width: 400px;
-  width: 95%;
-  margin: auto;
-  background: white;
-  padding: 20px;
-  border-radius: var(--border-radius);
-  box-shadow: var(--shadow);
-}
-
 label {
   display: block;
-  margin-top: 10px;
+  margin-top: 15px;
+  font-weight: bold;
 }
 
-input[type="text"],
-input[type="password"] {
-  width: 100%;
-  padding: 10px;
-  margin-top: 5px;
-  border: 1px solid #ccc;
-  border-radius: var(--border-radius);
+.switch-link {
+  text-align: center;
+  margin-top: 15px;
 }
 
+.switch-link a {
+  color: var(--primary-color);
+  text-decoration: none;
+}
+
+.switch-link a:hover {
+  text-decoration: underline;
+}
+
+#register-form {
+  display: none;
+}
 @media (max-width: 600px) {
   .input-group {
     flex-direction: column;
@@ -118,5 +124,9 @@ input[type="password"] {
 
   .input-group button {
     width: 100%;
+  }
+
+  .form-container {
+    padding: 20px;
   }
 }

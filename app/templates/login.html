@@ -1,17 +1,19 @@
 <!DOCTYPE html>
 <html lang="ru">
+
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Вход / Регистрация</title>
   <link rel="stylesheet" href="/static/style.css" />
 </head>
+
 <body>
 
   <div class="form-container" id="auth-container">
     <div id="login-form">
       <h2>Войти в аккаунт</h2>
-      <form action="/auth/token"  id = "loginForm" method="post">
+      <form action="/auth/token" id="loginForm" method="post">
         <label for="login_username">Имя пользователя</label>
         <input type="text" id="login_username" name="username" required />
         <label for="login_password">Пароль</label>
@@ -26,12 +28,12 @@
 
     <div id="register-form">
       <h2>Создать аккаунт</h2>
-      <form action="/users/new_user"  id = "registerForm" method="post">
+      <form action="/users/new_user" id="registerForm" method="post">
         <label for="username">Имя пользователя</label>
-        <input type="text" id="username" name="username" required minlength="3" maxlength="20"/>
+        <input type="text" id="username" name="username" required minlength="3" maxlength="20" />
 
         <label for="password">Пароль</label>
-        <input type="password" id="password" name="password" required minlength="4"/>
+        <input type="password" id="password" name="password" required minlength="4" />
 
         <button type="submit">Зарегистрироваться</button>
       </form>
@@ -42,4 +44,5 @@
   </div>
   <script src="/static/script.js"></script>
 </body>
+
 </html>

@@ -15,16 +15,16 @@ limiter = Limiter(key_func=get_remote_address)
 
 @router.post("/token", response_model=Token)
 @limiter.limit("3/minute", methods=["POST"])
-def login_for_access_token(user:User, request:Request):
-    current_user = crud.check_user(user)
-    if current_user != "success":
+def login_for_access_token(request:Request, user:User):
+    isCurrentUser= crud.check_user(user)
+    if not isCurrentUser:
         raise HTTPException(
             status_code=401,
             detail="Incorrect username or password",
             headers={"WWW-Authenticate": "Bearer"},
         )
-    access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
-    access_token = create_access_token(
-        data={"sub": user.username}, expires_delta=access_token_expires
+    accessTokenExpires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+    accessToken = create_access_token(
+        data={"sub": user.username}, expires_delta=accessTokenExpires
     )
-    return {"access_token": access_token, "token_type": "bearer"    }
+    return {"access_token": accessToken, "token_type": "bearer"    }

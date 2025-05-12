@@ -1,6 +1,6 @@
 import asyncpg
 from app.db.base import get_db_connection
-from app.schemas.items import Task
+from app.schemas.items import Task, UpdateTask
 
 async def get_tasks(userId):
     async with get_db_connection() as connection:
@@ -24,19 +24,19 @@ async def delete_task(task:Task):
         )
         return { "status": "success"}
 
-async def update_task(task:Task, text:str):
+async def update_task(task:UpdateTask):
     async with get_db_connection() as connection:
         await connection.execute("UPDATE tasks SET text = $1 WHERE text =$2 AND user_id = $3;", 
-            text,
+            task.newText,
             task.text, 
             task.userId
         )
         return { "status": "success"}
 
-async def toggle_complete_task(task:Task, isCompleted:bool):
+async def toggle_complete_task(task:Task):
     async with get_db_connection() as connection:
         await connection.execute("UPDATE tasks SET completed =$1 WHERE text =$2 AND user_id = $3;", 
-            isCompleted,
+            not task.isCompleted,
             task.text, 
             task.userId
         )

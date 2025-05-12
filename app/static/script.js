@@ -157,3 +157,71 @@ async function deleteNote(id) {
 }
 
 loadNotes();
+
+function toggleForms() {
+  const loginForm = document.getElementById("login-form");
+  const registerForm = document.getElementById("register-form");
+
+  if (loginForm.style.display === "none") {
+    loginForm.style.display = "block";
+    registerForm.style.display = "none";
+  } else {
+    loginForm.style.display = "none";
+    registerForm.style.display = "block";
+  }
+}
+document.getElementById('loginForm').addEventListener('submit', function (event) {
+        event.preventDefault();
+
+        const formData = new FormData(this);
+
+        fetch('/users/auth', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-Token': '{{ csrf_token }}' 
+            },
+            body: JSON.stringify({
+                username: formData.get('username'),
+                password: formData.get('password')
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+              localStorage.setItem('access_token', data.access_token);
+                window.location.href = '/'; 
+            } else {
+                alert(data.detail);
+            }
+        })
+        .catch(error => console.error('Error:', error));
+    });
+
+    document.getElementById('registerForm').addEventListener('submit', function (event) {
+        event.preventDefault();
+
+        const formData = new FormData(this);
+
+        fetch('/users/new_user', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-Token': '{{ csrf_token }}' 
+            },
+            body: JSON.stringify({
+                username: formData.get('username'),
+                password: formData.get('password')
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                
+                window.location.href = '/login'; 
+            } else {
+                alert(data.status);
+            }
+        })
+        .catch(error => console.error('Error:', error));
+    });

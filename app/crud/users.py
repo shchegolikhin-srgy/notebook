@@ -29,7 +29,7 @@ async def check_user(user:User):
 async def add_user(user:User):
     async with get_db_connection() as connection:
         hash = ph.hash(user.password)
-        if await check_exist_user(user.username) ==False:
+        if await check_user(user) =="user doesnt exist":
             await connection.execute("INSERT INTO users (username, hashed_password) VALUES($1, $2);", 
                 user.username, 
                 hash

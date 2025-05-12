@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi import APIRouter, HTTPException, Request
 from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
@@ -7,16 +7,6 @@ import app.crud.users as crud
 
 router = APIRouter(prefix="/users", tags=["Users"])
 limiter = Limiter(key_func=get_remote_address)
-
-@router.post("/auth")
-@limiter.limit("3/minute", methods=["POST"])
-async def auth(user: User, request: Request): 
-    is_login = await crud.check_user(user)
-    if is_login == "success":
-        return { "status": "success"}
-    else:
-        raise HTTPException(status_code=401, detail=is_login)
-
 @router.post("/new_user")
 @limiter.limit("3/minute", methods=["POST"])
 async def add_user(user:User, request: Request):

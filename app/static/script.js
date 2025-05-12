@@ -8,7 +8,7 @@ async function addNoteServer(newNote){
       "Content-Type": "application/json"
     },
     body: JSON.stringify({
-      userId: 3,
+      userId: 14,
       text: newNote.text,
       isCompleted: newNote.isCompleted
     })
@@ -25,7 +25,7 @@ async function toggleCompleteServer(id){
       "Content-Type": "application/json"
     },
     body: JSON.stringify({
-      userId: 3,
+      userId: 14,
       text: note.text,
       isCompleted: note.completed
     })
@@ -42,7 +42,7 @@ async function deleteNoteServer(id) {
       "Content-Type": "application/json"
     },
     body: JSON.stringify({
-      userId: 1,
+      userId: 14,
       text: note.text,
       isCompleted: note.isCompleted
     })
@@ -174,7 +174,8 @@ document.getElementById('loginForm').addEventListener('submit', function (event)
         event.preventDefault();
 
         const formData = new FormData(this);
-
+        const username = formData.get('username');
+        const password = formData.get('password');
         fetch('/auth/token', {
             method: 'POST',
             headers: {
@@ -182,13 +183,13 @@ document.getElementById('loginForm').addEventListener('submit', function (event)
                 'X-CSRF-Token': '{{ csrf_token }}' 
             },
             body: JSON.stringify({
-                username: formData.get('username'),
-                password: formData.get('password')
+                username: username,
+                password: password
             })
         })
         .then(response => response.json())
         .then(data => {
-            if (data.status === 'success') {
+            if (data.access_token) {
                 localStorage.setItem('access_token', data.access_token);
                 window.location.href = '/'; 
             } else {

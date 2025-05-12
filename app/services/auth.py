@@ -2,7 +2,7 @@ from app.core.config import settings
 from jose import JWTError, jwt
 from passlib.context import CryptContext
 from datetime import datetime, timedelta
-from schemas.token import TokenData
+from app.schemas.token import TokenData
 
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")

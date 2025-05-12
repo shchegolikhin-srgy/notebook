@@ -15,7 +15,7 @@ limiter = Limiter(key_func=get_remote_address)
 
 @router.post("/token", response_model=Token)
 @limiter.limit("3/minute", methods=["POST"])
-def login_for_access_token(user:User):
+def login_for_access_token(user:User, request:Request):
     current_user = crud.check_user(user)
     if current_user != "success":
         raise HTTPException(

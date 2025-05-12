@@ -9,7 +9,6 @@ from slowapi.errors import RateLimitExceeded
 
 from app.api.routers import auth, users, items
 from app.db.base import initialize_db_pool, close_db_pool, get_db_connection
-from app.schemas.users import User
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):

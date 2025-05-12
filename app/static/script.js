@@ -175,7 +175,7 @@ document.getElementById('loginForm').addEventListener('submit', function (event)
 
         const formData = new FormData(this);
 
-        fetch('/users/auth', {
+        fetch('/auth/token', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -189,7 +189,7 @@ document.getElementById('loginForm').addEventListener('submit', function (event)
         .then(response => response.json())
         .then(data => {
             if (data.status === 'success') {
-              localStorage.setItem('access_token', data.access_token);
+                localStorage.setItem('access_token', data.access_token);
                 window.location.href = '/'; 
             } else {
                 alert(data.detail);

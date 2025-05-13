@@ -100,13 +100,13 @@ uvicorn app.main:app --reload
 ### 1. Собери образ:
 
 ```bash
-docker build -t notebook .
+docker build -t todo-list .
 ```
 
 ### 2. Запусти контейнер:
 
 ```bash
-docker run -p 8000:8080 -d notebook
+docker run -p 8000:8080 -d todo-list
 ```
 
 Открой в браузере:  

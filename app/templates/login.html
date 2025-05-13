@@ -58,7 +58,7 @@
           localStorage.setItem('access_token', data.access_token);
           window.location.href = '/';
         } else {
-          alert(data.detail || 'Ошибка авторизации');
+          alert(data.detail || 'Слишком много запросов');
         }
       } catch (error) {
         console.error('Ошибка:', error);

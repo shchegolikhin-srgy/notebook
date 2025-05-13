@@ -16,8 +16,8 @@ async def update_task(task:UpdateTask):
 
 @router.get("/read_tasks")
 async def read_tasks(userID:int):
-    response = await crud.get_tasks(userID)
-    return response
+    tasks = await crud.get_tasks(userID)
+    return tasks
 
 @router.post("/new_task")
 async def add_task(task:Task):

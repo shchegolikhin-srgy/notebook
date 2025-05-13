@@ -22,7 +22,7 @@
 
 ## 🛠 Технологии
 
-- Python 3.10+
+- Python 3.12+
 - FastAPI
 - Jinja2 (шаблоны)
 - asyncpg / PostgreSQL

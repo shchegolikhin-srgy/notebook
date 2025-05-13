@@ -33,8 +33,8 @@
 ### 1. Клонируй репозиторий:
 
 ```bash
-git clone https://github.com/yourusername/todo-app.git
-cd todo-app
+git clone https://github.com/shchegolikhin-srgy/todo-list.git
+cd todo-list
 ```
 
 ### 2. Создай виртуальное окружение:

@@ -5,6 +5,7 @@ async function addNoteServer(newNote) {
   fetch("/items/new_task", {
     method: "POST",
     headers: {
+      "Authorization": "Bearer ${token}",
       "Content-Type": "application/json"
     },
     body: JSON.stringify({
@@ -22,6 +23,7 @@ async function editNoteServer(id, text) {
   fetch("/items/update_task", {
     method: "POST",
     headers: {
+      "Authorization": "Bearer ${token}",
       "Content-Type": "application/json"
     },
     body: JSON.stringify({
@@ -40,6 +42,7 @@ async function toggleCompleteServer(id) {
   fetch("/items/toggle_task", {
     method: "POST",
     headers: {
+      
       "Content-Type": "application/json"
     },
     body: JSON.stringify({
@@ -57,6 +60,7 @@ async function deleteNoteServer(id) {
   fetch("/items/delete_task", {
     method: "POST",
     headers: {
+      
       "Content-Type": "application/json"
     },
     body: JSON.stringify({
@@ -116,21 +120,21 @@ async function renderNotes() {
   });
 }
 async function loadNotes() {
+  renderNotes();
   try {
     const response = await fetch("/items/read_tasks?userID=14");
     const data = await response.json();
-
     notes = data.map((note, index) => ({
       id: note.id || index,
       text: note.text,
       isCompleted: note.isCompleted
     }));
     saveNotes();
+    renderNotes();
   }
   catch (error) {
     console.error("Ошибка загрузки заметок:", error);
   }
-  renderNotes();
 }
 
 async function addNote() {

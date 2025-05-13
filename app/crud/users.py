@@ -13,23 +13,24 @@ async def delete_user(user:User):
             hash
         )
 
-async def check_user(user:User)->str:
+async def check_user(user:User)->bool:
     async with get_db_connection() as connection:
         row = await connection.fetchrow("SELECT id, hashed_password FROM users WHERE username =$1;", 
             user.username
         )
-        if row == []:
-            return "user doesnt exist"
         try:
             ph.verify(row[1], user.password)
-            return "success"
+            return True
         except:
-            return "invalide password"
+            return False
 
 async def add_user(user:User)->bool:
     async with get_db_connection() as connection:
-        hash = ph.hash(user.password)
-        if await check_user(user) =="user doesnt exist":
+        row = await connection.fetchrow("SELECT id, hashed_password FROM users WHERE username =$1;", 
+            user.username
+        )
+        if row == None:
+            hash = ph.hash(user.password)
             await connection.execute("INSERT INTO users (username, hashed_password) VALUES($1, $2);", 
                 user.username, 
                 hash

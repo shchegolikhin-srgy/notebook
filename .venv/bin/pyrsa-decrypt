@@ -1,4 +1,4 @@
-#!/home/sergey/projects/python/notebook/.venv/bin/python3
+#!/home/sergey/projects/python/todo-list/.venv/bin/python
 # -*- coding: utf-8 -*-
 import re
 import sys

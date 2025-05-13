@@ -2,6 +2,7 @@ from fastapi import FastAPI, Request, HTTPException, Depends
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
+
 from contextlib import asynccontextmanager
 from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.util import get_remote_address
@@ -34,5 +35,5 @@ async def login(request: Request):
     return templates.TemplateResponse("login.html", {"request": request})
 
 @app.get("/")
-async def home(request: Request):
+async def home(request: Request, ):
     return templates.TemplateResponse("index.html", {"request": request})

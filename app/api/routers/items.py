@@ -1,8 +1,11 @@
 from fastapi import APIRouter, Depends, HTTPException
+from fastapi.security import OAuth2PasswordBearer
 import app.crud.items as crud
 from app.schemas.items import Task, UpdateTask
 
 router = APIRouter(prefix="/items", tags=["Items"])
+
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/items/read_tasks")
 
 @router.post("/delete_task")
 async def delete_task(task:Task):

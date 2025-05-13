@@ -6,7 +6,6 @@ load_dotenv()
 
 DATABASE_URL=os.getenv("DATABASE_URL")
 
-
 class Settings(BaseSettings):
     SECRET_KEY:str = os.getenv("SECRET_KEY")
     ALGORITHM: str = os.getenv("ALGORITHM")

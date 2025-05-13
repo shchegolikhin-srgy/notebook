@@ -3,7 +3,7 @@ from pydantic import BaseModel
 class Task(BaseModel):
     userID: int
     text: str
-    isCompleted: bool = False
+    isCompleted: bool
 
 class UpdateTask(BaseModel):
     userID: int

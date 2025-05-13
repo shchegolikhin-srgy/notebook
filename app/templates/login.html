@@ -13,28 +13,24 @@
   <div class="form-container" id="auth-container">
     <div id="login-form">
       <h2>Войти в аккаунт</h2>
-      <form action="/auth/token" id="loginForm" method="post">
+      <form id="loginForm">
         <label for="login_username">Имя пользователя</label>
         <input type="text" id="login_username" name="username" required />
         <label for="login_password">Пароль</label>
         <input type="password" id="login_password" name="password" required />
-
         <button type="submit">Войти</button>
       </form>
       <div class="switch-link">
         Нет аккаунта? <a onclick="toggleForms()">Зарегистрироваться</a>
       </div>
     </div>
-
     <div id="register-form">
       <h2>Создать аккаунт</h2>
-      <form action="/users/new_user" id="registerForm" method="post">
+      <form id="registerForm">
         <label for="username">Имя пользователя</label>
         <input type="text" id="username" name="username" required minlength="3" maxlength="20" />
-
         <label for="password">Пароль</label>
         <input type="password" id="password" name="password" required minlength="4" />
-
         <button type="submit">Зарегистрироваться</button>
       </form>
       <div class="switch-link">
@@ -42,56 +38,67 @@
       </div>
     </div>
   </div>
+
   <script>
-    document.getElementById('registerForm').addEventListener('submit', function (event) {
+    document.getElementById('loginForm').addEventListener('submit', async function (event) {
       event.preventDefault();
-      const formData = new FormData(this);
-      fetch('/users/new_user', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-CSRF-Token': '{{ csrf_token }}'
-        },
-        body: JSON.stringify({
-          username: formData.get('username'),
-          password: formData.get('password')
-        })
-      })
-        .then(response => response.json())
-        .then(data => {
-          if (data.status === 'success') {
+      const username = document.getElementById('login_username').value;
+      const password = document.getElementById('login_password').value;
+      try {
+        const response = await fetch('/auth/token', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ username, password })
+        });
+        const data = await response.json();
 
-            window.location.href = '/login';
-          } else {
-            alert(data.status);
-          }
-        })
-        .catch(error => console.error('Error:', error));
+        if (response.ok) {
+          localStorage.setItem('access_token', data.access_token);
+          window.location.href = '/';
+        } else {
+          alert(data.detail || 'Ошибка авторизации');
+        }
+      } catch (error) {
+        console.error('Ошибка:', error);
+        alert('Не удалось подключиться к серверу');
+      }
     });
-    document.getElementById('registerForm').addEventListener('submit', function (event) {
+    document.getElementById('registerForm').addEventListener('submit', async function (event) {
       event.preventDefault();
-      const formData = new FormData(this);
-      fetch('/users/new_user', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-CSRF-Token': '{{ csrf_token }}'
-        },
-        body: JSON.stringify({
-          username: formData.get('username'),
-          password: formData.get('password')
-        })
-      })
-        .then(response => response.json())
-        .then(data => {
-          if (data.status === 'success') {
+      const username = document.getElementById('username').value;
+      const password = document.getElementById('password').value;
 
-            window.location.href = '/login';
-          } else {
-            alert(data.status);
-          }
-        })
-        .catch(error => console.error('Error:', error));
+      try {
+        const response = await fetch('/users/new_user', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ username, password })
+        });
+        const data = await response.json();
+        if (response.ok) {
+          alert(data.status);
+          window.location.href = '/login';
+          toggleForms(); 
+        } else {
+          alert(data.detail || 'Слишком много запросов');
+        }
+      } catch (error) {
+        console.error('Ошибка:', error);
+        alert('Не удалось зарегистрироваться');
+      }
+    });
+    function toggleForms() {
+      const loginForm = document.getElementById("login-form");
+      const registerForm = document.getElementById("register-form");
+      loginForm.style.display = loginForm.style.display === "none" ? "block" : "none";
+      registerForm.style.display = registerForm.style.display === "none" ? "block" : "none";
+    }
+    document.addEventListener('DOMContentLoaded', () => {
+      document.getElementById("register-form").style.display = "none";
     });
   </script>
 </body>

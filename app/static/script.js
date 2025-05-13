@@ -42,7 +42,7 @@ async function toggleCompleteServer(id) {
   fetch("/items/toggle_task", {
     method: "POST",
     headers: {
-      
+      "Authorization": "Bearer ${token}",
       "Content-Type": "application/json"
     },
     body: JSON.stringify({
@@ -60,7 +60,7 @@ async function deleteNoteServer(id) {
   fetch("/items/delete_task", {
     method: "POST",
     headers: {
-      
+      "Authorization": "Bearer ${token}",
       "Content-Type": "application/json"
     },
     body: JSON.stringify({

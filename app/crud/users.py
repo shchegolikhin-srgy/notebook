@@ -13,7 +13,7 @@ async def delete_user(user:User):
             hash
         )
 
-async def check_user(user:User):
+async def check_user(user:User)->str:
     async with get_db_connection() as connection:
         row = await connection.fetchrow("SELECT id, hashed_password FROM users WHERE username =$1;", 
             user.username
@@ -26,7 +26,7 @@ async def check_user(user:User):
         except:
             return "invalide password"
 
-async def add_user(user:User):
+async def add_user(user:User)->bool:
     async with get_db_connection() as connection:
         hash = ph.hash(user.password)
         if await check_user(user) =="user doesnt exist":
@@ -34,6 +34,5 @@ async def add_user(user:User):
                 user.username, 
                 hash
             )
-            return "user created"
-        else:
-            return "user not created"
+            return True
+        return False

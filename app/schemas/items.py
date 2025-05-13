@@ -1,12 +1,16 @@
 from pydantic import BaseModel
 
 class Task(BaseModel):
-    userId: int
+    userID: int
     text: str
     isCompleted: bool = False
 
 class UpdateTask(BaseModel):
-    userId: int
+    userID: int
     text: str
     newText: str
-    isCompleted: bool = False
+    isCompleted: bool
+
+class ReadTask(BaseModel):
+    text: str
+    isCompleted: bool

@@ -10,8 +10,11 @@ limiter = Limiter(key_func=get_remote_address)
 @router.post("/new_user")
 @limiter.limit("3/minute", methods=["POST"])
 async def add_user(user:User, request: Request):
-    status = await crud.add_user(user)
-    return { "status": status}
+    user_created = await crud.add_user(user)
+    if user_created:
+        return {"status": "user created"}
+    else:
+        return {"status": "user not created"}
 
 @router.post("/delete_user")
 async def delete_user(user:User):

@@ -8,7 +8,7 @@ async function addNoteServer(newNote) {
       "Content-Type": "application/json"
     },
     body: JSON.stringify({
-      userId: 14,
+      userID: 14,
       text: newNote.text,
       isCompleted: newNote.isCompleted
     })
@@ -25,7 +25,7 @@ async function editNoteServer(id, text) {
       "Content-Type": "application/json"
     },
     body: JSON.stringify({
-      userId: 14,
+      userID: 14,
       text: note.text,
       isCompleted: note.isCompleted,
       newText: text
@@ -43,7 +43,7 @@ async function toggleCompleteServer(id) {
       "Content-Type": "application/json"
     },
     body: JSON.stringify({
-      userId: 14,
+      userID: 14,
       text: note.text,
       isCompleted: note.isCompleted
     })
@@ -60,7 +60,7 @@ async function deleteNoteServer(id) {
       "Content-Type": "application/json"
     },
     body: JSON.stringify({
-      userId: 14,
+      userID: 14,
       text: note.text,
       isCompleted: note.isCompleted
     })
@@ -70,16 +70,11 @@ async function deleteNoteServer(id) {
     .catch(error => console.error('Ошибка:', error));
 }
 
-function saveNotes() {
+async function saveNotes() {
   localStorage.setItem('todoNotes', JSON.stringify(notes));
 }
 
-
-function loadNotes() {
-  renderNotes();
-}
-
-function renderNotes() {
+async function renderNotes() {
   const list = document.getElementById("notesList");
   list.innerHTML = "";
 
@@ -120,7 +115,23 @@ function renderNotes() {
     list.appendChild(li);
   });
 }
+async function loadNotes() {
+  try {
+    const response = await fetch("/items/read_tasks?userID=14");
+    const data = await response.json();
 
+    notes = data.map((note, index) => ({
+      id: note.id || index,
+      text: note.text,
+      isCompleted: note.isCompleted
+    }));
+    saveNotes();
+  }
+  catch (error) {
+    console.error("Ошибка загрузки заметок:", error);
+  }
+  renderNotes();
+}
 
 async function addNote() {
   const input = document.getElementById("newNoteInput");
@@ -164,8 +175,6 @@ async function editNote(id) {
     }
   }
 }
-
-
 async function deleteNote(id) {
   if (confirm("Вы уверены, что хотите удалить эту заметку?")) {
     await deleteNoteServer(id);
@@ -177,7 +186,7 @@ async function deleteNote(id) {
 
 loadNotes();
 
-function toggleForms() {
+async function toggleForms() {
   const loginForm = document.getElementById("login-form");
   const registerForm = document.getElementById("register-form");
 
@@ -189,56 +198,3 @@ function toggleForms() {
     registerForm.style.display = "block";
   }
 }
-
-document.getElementById('registerForm').addEventListener('submit', function (event) {
-  event.preventDefault();
-
-  const formData = new FormData(this);
-
-  fetch('/users/new_user', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'X-CSRF-Token': '{{ csrf_token }}'
-    },
-    body: JSON.stringify({
-      username: formData.get('username'),
-      password: formData.get('password')
-    })
-  })
-    .then(response => response.json())
-    .then(data => {
-      if (data.status === 'success') {
-
-        window.location.href = '/login';
-      } else {
-        alert(data.status);
-      }
-    })
-    .catch(error => console.error('Error:', error));
-});
-
-
-document.getElementById('loginForm').addEventListener('submit', function (event) {
-  event.preventDefault();
-
-  const { username, password } = Object.fromEntries(new FormData(this));
-
-  fetch('/auth/token', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'X-CSRF-Token': '{{ csrf_token }}'
-    },
-    body: JSON.stringify({ username, password })
-  })
-    .then(response => {
-      if (!response.ok) throw new Error("Auth failed");
-      return response.json();
-    })
-    .then(data => {
-      localStorage.setItem('access_token', data.access_token);
-      window.location.href = '/';
-    })
-    .catch(error => console.error('Error:', error));
-});

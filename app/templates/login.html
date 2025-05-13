@@ -42,7 +42,58 @@
       </div>
     </div>
   </div>
-  <script src="/static/script.js"></script>
+  <script>
+    document.getElementById('registerForm').addEventListener('submit', function (event) {
+      event.preventDefault();
+      const formData = new FormData(this);
+      fetch('/users/new_user', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': '{{ csrf_token }}'
+        },
+        body: JSON.stringify({
+          username: formData.get('username'),
+          password: formData.get('password')
+        })
+      })
+        .then(response => response.json())
+        .then(data => {
+          if (data.status === 'success') {
+
+            window.location.href = '/login';
+          } else {
+            alert(data.status);
+          }
+        })
+        .catch(error => console.error('Error:', error));
+    });
+    document.getElementById('registerForm').addEventListener('submit', function (event) {
+      event.preventDefault();
+      const formData = new FormData(this);
+      fetch('/users/new_user', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': '{{ csrf_token }}'
+        },
+        body: JSON.stringify({
+          username: formData.get('username'),
+          password: formData.get('password')
+        })
+      })
+        .then(response => response.json())
+        .then(data => {
+          if (data.status === 'success') {
+
+            window.location.href = '/login';
+          } else {
+            alert(data.status);
+          }
+        })
+        .catch(error => console.error('Error:', error));
+    });
+  </script>
 </body>
 
 </html>

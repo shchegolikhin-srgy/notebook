@@ -1,5 +1,5 @@
 import asyncpg
-from app.db.base import get_db_connection
+from app.db.database import get_db_connection
 from app.schemas.users import User
 from argon2 import PasswordHasher
 

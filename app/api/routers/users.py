@@ -12,11 +12,11 @@ limiter = Limiter(key_func=get_remote_address)
 async def add_user(user:User, request: Request):
     user_created = await crud.add_user(user)
     if user_created:
-        return {"status": "user created"}
+        return {"status": "Пользователь создан"}
     else:
-        return {"status": "user not created"}
+        return {"status": "Пользователь уже существует"}
 
 @router.post("/delete_user")
 async def delete_user(user:User):
     await crud.delete_user(user)
-    return { "status": "success"}
+    return { "status": "Пользователь удален"}

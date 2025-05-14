@@ -9,7 +9,6 @@ async function addNoteServer(newNote) {
       "Content-Type": "application/json"
     },
     body: JSON.stringify({
-      userID: 14,
       text: newNote.text,
       isCompleted: newNote.isCompleted
     })
@@ -27,7 +26,6 @@ async function editNoteServer(id, text) {
       "Content-Type": "application/json"
     },
     body: JSON.stringify({
-      userID: 14,
       text: note.text,
       isCompleted: note.isCompleted,
       newText: text
@@ -46,7 +44,6 @@ async function toggleCompleteServer(id) {
       "Content-Type": "application/json"
     },
     body: JSON.stringify({
-      userID: 14,
       text: note.text,
       isCompleted: note.isCompleted
     })
@@ -64,7 +61,6 @@ async function deleteNoteServer(id) {
       "Content-Type": "application/json"
     },
     body: JSON.stringify({
-      userID: 14,
       text: note.text,
       isCompleted: note.isCompleted
     })
@@ -73,11 +69,9 @@ async function deleteNoteServer(id) {
     .then(data => console.log(data))
     .catch(error => console.error('Ошибка:', error));
 }
-
 async function saveNotes() {
   localStorage.setItem('todoNotes', JSON.stringify(notes));
 }
-
 async function renderNotes() {
   const list = document.getElementById("notesList");
   list.innerHTML = "";
@@ -121,22 +115,16 @@ async function renderNotes() {
 }
 async function loadNotes() {
   renderNotes();
-  try {
-    const response = await fetch("/items/read_tasks?userID=14");
-    const data = await response.json();
-    notes = data.map((note, index) => ({
-      id: note.id || index,
-      text: note.text,
-      isCompleted: note.isCompleted
-    }));
-    saveNotes();
-    renderNotes();
-  }
-  catch (error) {
-    console.error("Ошибка загрузки заметок:", error);
-  }
+  const response = await fetch("/items/read_tasks?userID=14");
+  const data = await response.json();
+  notes = data.map((note, index) => ({
+    id: note.id || index,
+    text: note.text,
+    isCompleted: note.isCompleted
+  }));
+  saveNotes();
+  renderNotes();
 }
-
 async function addNote() {
   const input = document.getElementById("newNoteInput");
   const text = input.value.trim();
@@ -154,8 +142,6 @@ async function addNote() {
     renderNotes();
   }
 }
-
-
 async function toggleComplete(id) {
   const note = notes.find(n => n.id === id);
   if (note) {
@@ -165,8 +151,6 @@ async function toggleComplete(id) {
     renderNotes();
   }
 }
-
-
 async function editNote(id) {
   const newText = prompt("Введите новый текст:", notes.find(n => n.id === id).text);
   if (newText !== null && newText.trim() !== "") {
@@ -202,3 +186,63 @@ async function toggleForms() {
     registerForm.style.display = "block";
   }
 }
+
+document.getElementById('loginForm').addEventListener('submit', async function (event) {
+  event.preventDefault();
+  const username = document.getElementById('login_username').value;
+  const password = document.getElementById('login_password').value;
+  try {
+    const response = await fetch('/auth/token', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ username, password })
+    });
+    const data = await response.json();
+    if (response.ok) {
+      localStorage.setItem('access_token', data.access_token);
+      window.location.href = '/';
+    } else {
+      alert(data.detail || 'Слишком много запросов');
+    }
+  } catch (error) {
+    console.error('Ошибка:', error);
+    alert('Не удалось подключиться к серверу');
+  }
+});
+document.getElementById('registerForm').addEventListener('submit', async function (event) {
+  event.preventDefault();
+  const username = document.getElementById('username').value;
+  const password = document.getElementById('password').value;
+
+  try {
+    const response = await fetch('/users/new_user', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ username, password })
+    });
+    const data = await response.json();
+    if (response.ok) {
+      alert(data.status);
+      window.location.href = '/login';
+      toggleForms();
+    } else {
+      alert(data.detail || 'Слишком много запросов');
+    }
+  } catch (error) {
+    console.error('Ошибка:', error);
+    alert('Не удалось зарегистрироваться');
+  }
+});
+function toggleForms() {
+  const loginForm = document.getElementById("login-form");
+  const registerForm = document.getElementById("register-form");
+  loginForm.style.display = loginForm.style.display === "none" ? "block" : "none";
+  registerForm.style.display = registerForm.style.display === "none" ? "block" : "none";
+}
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById("register-form").style.display = "none";
+});

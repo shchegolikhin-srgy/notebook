@@ -8,8 +8,6 @@ async def initialize_db_pool():
     global pool
     try:
         pool = await asyncpg.create_pool(DATABASE_URL)
-        if pool:
-            print("Database connection pool created successfully.")
     except Exception:
         print(f"Failed to connect to the database: {Exception}")
         raise

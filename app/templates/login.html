@@ -7,9 +7,7 @@
   <title>Вход / Регистрация</title>
   <link rel="stylesheet" href="/static/style.css" />
 </head>
-
 <body>
-
   <div class="form-container" id="auth-container">
     <div id="login-form">
       <h2>Войти в аккаунт</h2>
@@ -38,69 +36,6 @@
       </div>
     </div>
   </div>
-
-  <script>
-    document.getElementById('loginForm').addEventListener('submit', async function (event) {
-      event.preventDefault();
-      const username = document.getElementById('login_username').value;
-      const password = document.getElementById('login_password').value;
-      try {
-        const response = await fetch('/auth/token', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({ username, password })
-        });
-        const data = await response.json();
-
-        if (response.ok) {
-          localStorage.setItem('access_token', data.access_token);
-          window.location.href = '/';
-        } else {
-          alert(data.detail || 'Слишком много запросов');
-        }
-      } catch (error) {
-        console.error('Ошибка:', error);
-        alert('Не удалось подключиться к серверу');
-      }
-    });
-    document.getElementById('registerForm').addEventListener('submit', async function (event) {
-      event.preventDefault();
-      const username = document.getElementById('username').value;
-      const password = document.getElementById('password').value;
-
-      try {
-        const response = await fetch('/users/new_user', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({ username, password })
-        });
-        const data = await response.json();
-        if (response.ok) {
-          alert(data.status);
-          window.location.href = '/login';
-          toggleForms(); 
-        } else {
-          alert(data.detail || 'Слишком много запросов');
-        }
-      } catch (error) {
-        console.error('Ошибка:', error);
-        alert('Не удалось зарегистрироваться');
-      }
-    });
-    function toggleForms() {
-      const loginForm = document.getElementById("login-form");
-      const registerForm = document.getElementById("register-form");
-      loginForm.style.display = loginForm.style.display === "none" ? "block" : "none";
-      registerForm.style.display = registerForm.style.display === "none" ? "block" : "none";
-    }
-    document.addEventListener('DOMContentLoaded', () => {
-      document.getElementById("register-form").style.display = "none";
-    });
-  </script>
+  <script src="/static/script.js"></script>
 </body>
-
 </html>

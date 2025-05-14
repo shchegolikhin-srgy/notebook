@@ -2,10 +2,10 @@ from fastapi import APIRouter, Depends, HTTPException
 from fastapi.security import OAuth2PasswordBearer
 import app.crud.items as crud
 from app.schemas.items import Task, UpdateTask
+from app.services.auth import decode_token
 
 router = APIRouter(prefix="/items", tags=["Items"])
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/items/read_tasks")
 
 @router.post("/delete_task")
 async def delete_task(task:Task):
@@ -31,3 +31,10 @@ async def add_task(task:Task):
 async def toggle_complete_task(task:Task):
     await crud.toggle_complete_task(task)
     return { "status": "success"}
+
+@router.get("/protected")
+async def protected_route(current_user: dict = Depends(decode_token)):
+    return {
+        "message": f"Привет, {current_user['username']}!",
+        "status": "Доступ разрешён"
+    }

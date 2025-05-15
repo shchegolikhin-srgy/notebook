@@ -3,11 +3,14 @@ from app.db.database import get_db_connection
 from app.schemas.items import Task, UpdateTask, ReadTask
 from typing import List
 
-async def get_tasks(userID:int)-> List[ReadTask]:
+async def get_tasks(username:str)-> List[ReadTask]:
     async with get_db_connection() as connection:
         try:
-            rows=await connection.fetch("SELECT text, completed FROM tasks  WHERE user_id = $1;",
-                userID
+            rows=await connection.fetch("""SELECT tasks.text, tasks.completed
+                FROM tasks
+                JOIN users ON tasks.user_id = users.id
+                WHERE users.username =$1;""",
+                username
             )
             tasks = [ReadTask(text=row['text'], isCompleted=row['completed']) for row in rows]
             return tasks

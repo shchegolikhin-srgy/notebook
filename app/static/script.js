@@ -115,7 +115,7 @@ async function renderNotes() {
 }
 async function loadNotes() {
   renderNotes();
-  const response = await fetch("/items/read_tasks?userID=14");
+  const response = await fetch("/items/read_tasks");
   const data = await response.json();
   notes = data.map((note, index) => ({
     id: note.id || index,

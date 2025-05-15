@@ -18,7 +18,11 @@ INSERT INTO users (username, hashed_password) VALUES('1', '1');
 INSERT INTO users (username, hashed_password, role) VALUES('1', '1', 'admin');
 INSERT INTO tasks (text, completed, user_id) VALUES ('Task 1', false, 0);
 
-SELECT text, completed FROM tasks  WHERE user_id = 1;
+SELECT tasks.text, tasks.completed
+FROM tasks
+JOIN users ON tasks.user_id = users.id
+WHERE users.username =$1;
+
 SELECT id FROM users WHERE username ='1' AND hashed_password = '1';
 
 UPDATE tasks SET completed = true WHERE text ='text 2' AND user_id = 3;

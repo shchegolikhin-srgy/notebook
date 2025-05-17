@@ -1,10 +1,10 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.security import OAuth2PasswordBearer
 import app.crud.items as crud
 from app.schemas.items import Task, UpdateTask
 from app.schemas.token import Token, TokenData
 from app.core.config import settings
-from app.services.auth import create_access_token, decode_token
+from app.services.auth import create_jwt_token, verify_jwt_token, get_current_user
 from app.services.redis import get_redis
 from datetime import timedelta
 from fastapi.security import OAuth2PasswordBearer
@@ -23,9 +23,8 @@ async def update_task(task:UpdateTask):
     return { "status": "success"}
 
 @router.get("/read_tasks")
-async def read_tasks(token: str = Depends(oauth2_scheme), user: TokenData = Depends(decode_token)):
-    print(user.username)
-    tasks = await crud.get_tasks()
+async def read_tasks(token: str = Depends(oauth2_scheme), user: TokenData = Depends(verify_jwt_token)):
+    tasks = await crud.get_tasks(username=user.username)
     return tasks
 
 @router.post("/new_task")
@@ -39,8 +38,8 @@ async def toggle_complete_task(task:Task):
     return { "status": "success"}
 
 @router.get("/protected")
-async def protected_route(current_user: TokenData = Depends(decode_token)):
+async def protected_route(current_user: str = Depends(get_current_user)):
     return {
-        "message": f"Привет, {current_user.username}!",
+        "message": f"Привет, {current_user}!",
         "status": "Доступ разрешён"
     }

@@ -10,38 +10,35 @@ async def get_tasks(username:str)-> List[ReadTask]:
                 FROM tasks
                 JOIN users ON tasks.user_id = users.id
                 WHERE users.username =$1;""",
-                username
+                "sergey"
             )
             tasks = [ReadTask(text=row['text'], isCompleted=row['completed']) for row in rows]
             return tasks
         except Exception as e:
             return []
         
-async def add_task(task:Task):
+async def add_task(task:Task, username:str):
     async with get_db_connection() as connection:
-        await connection.execute("INSERT INTO tasks (text, completed, user_id) VALUES ($1, $2, $3);", 
+        await connection.execute("INSERT INTO tasks (text, completed, user_id) SELECT $1, $2, users.id FROM users WHERE users.username = $3;", 
             task.text,
             task.isCompleted,
-            task.userID
+            username
         )
-        return {"status": "success"}
 
-async def delete_task(task:Task):
+async def delete_task(task:Task, username:str = "1234"):
     async with get_db_connection() as connection:
-        await connection.execute("DELETE FROM tasks WHERE text =$1 AND user_id = $2;",
+        await connection.execute("DELETE FROM tasks  USING users WHERE tasks.text =$1 AND tasks.user_id = users.id AND users.username = $2;",
             task.text, 
-            task.userID
+            username
         )
-        return { "status": "success"}
 
-async def update_task(task:UpdateTask):
+async def update_task(task:UpdateTask, username:str = "1234"):
     async with get_db_connection() as connection:
-        await connection.execute("UPDATE tasks SET text = $1 WHERE text =$2 AND user_id = $3;", 
+        await connection.execute("UPDATE tasks SET text = $1 FROM users WHERE tasks.text =$2 AND tasks.user_id = users.id AND users.username = $3;", 
             task.newText,
             task.text, 
-            task.userID
+            username
         )
-        return { "status": "success"}
 
 async def toggle_complete_task(task:Task):
     async with get_db_connection() as connection:
@@ -50,4 +47,3 @@ async def toggle_complete_task(task:Task):
             task.text, 
             task.userID
         )
-        return { "status": "success"}

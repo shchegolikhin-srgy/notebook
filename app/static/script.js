@@ -216,7 +216,7 @@ function toggleForms() {
   const registerForm = document.getElementById("register-form");
   loginForm.style.display = loginForm.style.display === "none" ? "block" : "none";
   registerForm.style.display = registerForm.style.display === "none" ? "block" : "none";
-}
+}loadNotes();
 
 document.addEventListener('DOMContentLoaded', () => {
   document.getElementById("register-form").style.display = "none";
@@ -226,3 +226,4 @@ document.addEventListener('DOMContentLoaded', () => {
     loadNotes();
   }
 });
+loadNotes();

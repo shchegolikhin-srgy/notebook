@@ -8,7 +8,7 @@ from app.schemas.users import User
 import app.crud.users as crud
 from app.schemas.token import Token
 from app.core.config import settings
-from app.services.auth import create_jwt_token, verify_jwt_token
+from app.services.auth import create_jwt_token, get_current_user
 from app.services.redis import get_redis
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/token")
@@ -35,7 +35,7 @@ async def login_for_access_token(request: Request, user:User):
     }
 
 @router.post("/logout")
-async def logout(token: str = Depends(oauth2_scheme), user: dict = Depends(verify_jwt_token)):
+async def logout(token: str = Depends(oauth2_scheme), user: dict = Depends(get_current_user)):
     redis = await get_redis()
     await redis.delete(token)  
     return {"status": "success", "message": "Вы вышли из системы"}

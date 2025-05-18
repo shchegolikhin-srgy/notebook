@@ -4,13 +4,13 @@ import app.crud.items as crud
 from app.schemas.items import Task, UpdateTask
 from app.schemas.token import Token, TokenData
 from app.core.config import settings
-from app.services.auth import create_jwt_token, verify_jwt_token, get_current_user
+from app.services.auth import create_jwt_token, get_current_user
 from app.services.redis import get_redis
 from datetime import timedelta
 from fastapi.security import OAuth2PasswordBearer
+from app.schemas.users import User
 
 router = APIRouter(prefix="/items", tags=["Items"])
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/items/read_tasks")
 
 @router.post("/delete_task")
 async def delete_task(task:Task):
@@ -23,8 +23,8 @@ async def update_task(task:UpdateTask):
     return { "status": "success"}
 
 @router.get("/read_tasks")
-async def read_tasks(token: str = Depends(oauth2_scheme), user: TokenData = Depends(verify_jwt_token)):
-    tasks = await crud.get_tasks(username=user.username)
+async def read_tasks(current_user: User = Depends(get_current_user)):
+    tasks = await crud.get_tasks(username=current_user.username)
     return tasks
 
 @router.post("/new_task")
@@ -38,8 +38,8 @@ async def toggle_complete_task(task:Task):
     return { "status": "success"}
 
 @router.get("/protected")
-async def protected_route(current_user: str = Depends(get_current_user)):
+async def protected_route(current_user: User = Depends(get_current_user)):
     return {
-        "message": f"Привет, {current_user}!",
+        "message": f"Привет, {current_user.username}!",
         "status": "Доступ разрешён"
     }

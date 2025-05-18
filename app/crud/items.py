@@ -35,7 +35,7 @@ async def delete_task(task:DeleteTask, current_user: TokenData):
 
 async def update_task(task:UpdateTask, current_user: TokenData):
     async with get_db_connection() as connection:
-        await connection.execute("UPDATE tasks SET text = $1 WHERE text = $2 AND user_id IN (SELECT id FROM users WHERE username = $3);", 
+        await connection.execute("UPDATE tasks SET text = $1 FROM users WHERE tasks.text =$2 AND tasks.user_id = users.id AND users.username = $3;", 
             task.newText,
             task.text, 
             current_user.username
@@ -44,7 +44,7 @@ async def update_task(task:UpdateTask, current_user: TokenData):
 async def toggle_complete_task(task:Task, current_user: TokenData):
     async with get_db_connection() as connection:
         await connection.execute("UPDATE tasks SET completed = $1 FROM users WHERE tasks.text =$2 AND tasks.user_id = users.id AND users.username = $3;", 
-            not task.isCompleted,
+            task.isCompleted,
             task.text, 
             current_user.username
         )

@@ -9,6 +9,5 @@ class UpdateTask(BaseModel):
     newText: str
     isCompleted: bool
 
-class ReadTask(BaseModel):
-    text: str
-    isCompleted: bool
+class DeleteTask(BaseModel):
+    text:str 

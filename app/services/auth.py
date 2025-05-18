@@ -6,7 +6,6 @@ import jwt
 from app.core.config import settings
 from app.schemas.token import TokenData
 from app.services.redis import get_redis
-from app.schemas.users import User
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/items/protected")
 
@@ -21,7 +20,7 @@ async def create_jwt_token(data: dict, expires_delta: Optional[timedelta] = None
     encoded_jwt = jwt.encode(to_encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
     return encoded_jwt
 
-async def get_current_user(token: str = Depends(oauth2_scheme))->User:
+async def get_current_user(token: str = Depends(oauth2_scheme))->TokenData:
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",

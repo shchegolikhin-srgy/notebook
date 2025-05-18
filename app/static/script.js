@@ -40,7 +40,7 @@ async function editNoteServer(id, newText) {
   const data = await request("/items/update_task", "POST", {
     text: note.text,
     isCompleted: note.isCompleted,
-    newText
+    newText: newText
   });
   console.log(data);
 }
@@ -77,14 +77,14 @@ async function renderNotes() {
     const span = document.createElement("span");
     span.textContent = note.text;
 
-    if (note.completed) {
+    if (note.isCompleted) {
       span.style.textDecoration = "line-through";
       span.style.color = "#888";
     }
 
     const checkbox = document.createElement("input");
     checkbox.type = "checkbox";
-    checkbox.checked = note.completed;
+    checkbox.checked = note.isCompleted;
     checkbox.onclick = () => toggleComplete(note.id);
 
     const actions = document.createElement("div");
@@ -115,7 +115,7 @@ async function loadNotes() {
   notes.push(...data.map((note, index) => ({
     id: note.id || index,
     text: note.text,
-    completed: note.completed
+    isCompleted: note.isCompleted
   })));
   await saveNotes();
   renderNotes();
@@ -128,8 +128,8 @@ async function addNote() {
   if (text !== "") {
     const newNote = {
       id: Date.now(),
-      text,
-      completed: false
+      text: text,
+      isCompleted: false
     };
     await addNoteServer(newNote);
     notes.push(newNote);
@@ -142,7 +142,7 @@ async function addNote() {
 async function toggleComplete(id) {
   const note = notes.find(n => n.id === id);
   if (note) {
-    note.completed = !note.completed;
+    note.isCompleted = !note.isCompleted;
     await toggleCompleteServer(id);
     await saveNotes();
     renderNotes();
@@ -216,13 +216,11 @@ function toggleForms() {
   const registerForm = document.getElementById("register-form");
   loginForm.style.display = loginForm.style.display === "none" ? "block" : "none";
   registerForm.style.display = registerForm.style.display === "none" ? "block" : "none";
-}loadNotes();
+}
 
 document.addEventListener('DOMContentLoaded', () => {
   document.getElementById("register-form").style.display = "none";
   document.getElementById('loginForm')?.addEventListener('submit', handleLogin);
   document.getElementById('registerForm')?.addEventListener('submit', handleRegister);
-  if (window.location.pathname !== '/login') {
-    loadNotes();
-  }
 });
+loadNotes();

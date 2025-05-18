@@ -10,4 +10,5 @@ python-jose[cryptography]==3.3.0
 passlib==1.7.4
 pydantic-settings==2.2.1
 redis>=6.1.0
-aioredis>=2.0.1
+pyjwt>=2.1.10
+python-jose>=3.3.0

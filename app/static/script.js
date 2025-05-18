@@ -226,4 +226,3 @@ document.addEventListener('DOMContentLoaded', () => {
     loadNotes();
   }
 });
-loadNotes();

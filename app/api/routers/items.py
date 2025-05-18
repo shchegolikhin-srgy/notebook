@@ -1,13 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, Request
-from fastapi.security import OAuth2PasswordBearer
 import app.crud.items as crud
 from app.schemas.items import Task, UpdateTask
-from app.schemas.token import Token, TokenData
-from app.core.config import settings
-from app.services.auth import create_jwt_token, get_current_user
-from app.services.redis import get_redis
-from datetime import timedelta
-from fastapi.security import OAuth2PasswordBearer
+from app.services.auth import  get_current_user
 from app.schemas.users import User
 
 router = APIRouter(prefix="/items", tags=["Items"])

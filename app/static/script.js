@@ -35,12 +35,11 @@ async function addNoteServer(newNote) {
   console.log(data);
 }
 
-async function editNoteServer(id, newText) {
+async function editNoteServer(id, oldText) {
   const note = notes.find(n => n.id === id);
   const data = await request("/items/update_task", "POST", {
-    text: note.text,
-    isCompleted: note.isCompleted,
-    newText: newText
+    text: oldText,
+    newText: note.text
   });
   console.log(data);
 }
@@ -156,7 +155,7 @@ async function editNote(id) {
     const note = notes.find(n => n.id === id);
     if (note) {
       note.text = newText.trim();
-      await editNoteServer(id, newText);
+      await editNoteServer(id, oldText);
       await saveNotes();
       renderNotes();
     }

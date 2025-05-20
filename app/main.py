@@ -10,13 +10,11 @@ from slowapi.errors import RateLimitExceeded
 from app.services.auth import  get_current_user
 from app.api.routers import auth, users, items
 from app.db.database import initialize_db_pool, close_db_pool, get_db_connection
-from app.services.redis import connect_redis
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     print("Start")
     await initialize_db_pool()
-    await connect_redis()
     yield
     await close_db_pool()
     print("Shutdown")
@@ -39,4 +37,3 @@ async def login(request: Request):
 @app.get("/")
 async def home(request: Request):
     return templates.TemplateResponse("index.html", {"request": request})
-   

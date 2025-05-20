@@ -5,7 +5,6 @@ from fastapi.security import OAuth2PasswordBearer
 import jwt
 from app.core.config import settings
 from app.schemas.token import TokenData
-from app.services.redis import get_redis
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/items/protected")
 
@@ -32,7 +31,6 @@ async def get_current_user(token: str = Depends(oauth2_scheme))->TokenData:
         if username is None:
             raise credentials_exception
         token_data = TokenData(username=username)
-    except JWTError:
+    except Exception:
         raise credentials_exception
-    print(token_data.username)
     return token_data

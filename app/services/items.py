@@ -15,7 +15,7 @@ async def get_tasks(current_user: TokenData)-> List[Task]:
             )
             tasks = [Task(text=row['text'], isCompleted=row['completed']) for row in rows]
             return tasks
-        except Exception:
+        except Exception as e:
             return []
         
 async def add_task(task:Task, current_user: TokenData):

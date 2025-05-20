@@ -1,17 +1,15 @@
-from app.core.config import settings
-from jose import JWTError, jwt
-from passlib.context import CryptContext
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
+from typing import Optional
+from fastapi import Depends, HTTPException, status, Request
 from fastapi.security import OAuth2PasswordBearer
+import jwt
+from app.core.config import settings
 from app.schemas.token import TokenData
-from app.services.redis import get_redis
 
-from fastapi import Depends
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/items/protected")
 
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/items/read_tasks")
 
-async def create_access_token(data, expires_delta=None):
+async def create_jwt_token(data: dict, expires_delta: Optional[timedelta] = None):
     to_encode = data.copy()
     if expires_delta:
         expire = datetime.utcnow() + expires_delta
@@ -21,29 +19,18 @@ async def create_access_token(data, expires_delta=None):
     encoded_jwt = jwt.encode(to_encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
     return encoded_jwt
 
-async def decode_token(token: str = Depends(oauth2_scheme)):
+async def get_current_user(token: str = Depends(oauth2_scheme))->TokenData:
+    credentials_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Could not validate credentials",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
     try:
         payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
-        username = payload.get("sub")
+        username: str = payload.get("sub")
         if username is None:
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Токен недействителен или истёк",
-                headers={"WWW-Authenticate": "Bearer"},
-            )
-        redis = await get_redis()
-        valid = await redis.exists(token)
-        if not valid:
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Токен недействителен или истёк",
-                headers={"WWW-Authenticate": "Bearer"},
-            )
-        return TokenData(username=username)
-    except JWTError:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Не удалось проверить учетные данные",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
-
+            raise credentials_exception
+        token_data = TokenData(username=username)
+    except Exception:
+        raise credentials_exception
+    return token_data

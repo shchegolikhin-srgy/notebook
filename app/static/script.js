@@ -1,77 +1,71 @@
+const notes = JSON.parse(localStorage.getItem('todoNotes')) || [];
+let token = localStorage.getItem('access_token');
 
-let notes = JSON.parse(localStorage.getItem('todoNotes')) || [];
+function setToken(newToken) {
+  token = newToken;
+  localStorage.setItem('access_token', token);
+}
+
+async function request(url, method = 'GET', body = null) {
+  const headers = {
+    "Content-Type": "application/json"
+  };
+  if (token) {
+    headers["Authorization"] = `Bearer ${token}`;
+  }
+
+  const config = {
+    method,
+    headers
+  };
+
+  if (body) {
+    config.body = JSON.stringify(body);
+  }
+
+  const response = await fetch(url, config);
+  return await response.json();
+}
 
 async function addNoteServer(newNote) {
-  fetch("/items/new_task", {
-    method: "POST",
-    headers: {
-      "Authorization": "Bearer ${token}",
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-      text: newNote.text,
-      isCompleted: newNote.isCompleted
-    })
-  })
-    .then(response => response.json())
-    .then(data => console.log(data))
-    .catch(error => console.error('Ошибка:', error));
+  const data = await request("/items/new_task", "POST", {
+    text: newNote.text,
+    isCompleted: newNote.isCompleted
+  });
+  console.log(data);
 }
-async function editNoteServer(id, text) {
+
+async function editNoteServer(id, oldText) {
   const note = notes.find(n => n.id === id);
-  fetch("/items/update_task", {
-    method: "POST",
-    headers: {
-      "Authorization": "Bearer ${token}",
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-      text: note.text,
-      isCompleted: note.isCompleted,
-      newText: text
-    })
-  })
-    .then(response => response.json())
-    .then(data => console.log(data))
-    .catch(error => console.error('Ошибка:', error));
+  const data = await request("/items/update_task", "POST", {
+    text: oldText,
+    newText: note.text
+  });
+  console.log(data);
 }
+
 async function toggleCompleteServer(id) {
   const note = notes.find(n => n.id === id);
-  fetch("/items/toggle_task", {
-    method: "POST",
-    headers: {
-      "Authorization": "Bearer ${token}",
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-      text: note.text,
-      isCompleted: note.isCompleted
-    })
-  })
-    .then(response => response.json())
-    .then(data => console.log(data))
-    .catch(error => console.error('Ошибка:', error));
+  const data = await request("/items/toggle_task", "POST", {
+    text: note.text,
+    isCompleted: note.isCompleted
+  });
+  console.log(data);
 }
+
 async function deleteNoteServer(id) {
   const note = notes.find(n => n.id === id);
-  fetch("/items/delete_task", {
-    method: "POST",
-    headers: {
-      "Authorization": "Bearer ${token}",
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-      text: note.text,
-      isCompleted: note.isCompleted
-    })
-  })
-    .then(response => response.json())
-    .then(data => console.log(data))
-    .catch(error => console.error('Ошибка:', error));
+  const data = await request("/items/delete_task", "POST", {
+    text: note.text,
+    isCompleted: note.isCompleted
+  });
+  console.log(data);
 }
+
 async function saveNotes() {
   localStorage.setItem('todoNotes', JSON.stringify(notes));
 }
+
 async function renderNotes() {
   const list = document.getElementById("notesList");
   list.innerHTML = "";
@@ -82,14 +76,14 @@ async function renderNotes() {
     const span = document.createElement("span");
     span.textContent = note.text;
 
-    if (note.completed) {
+    if (note.isCompleted) {
       span.style.textDecoration = "line-through";
       span.style.color = "#888";
     }
 
     const checkbox = document.createElement("input");
     checkbox.type = "checkbox";
-    checkbox.checked = note.completed;
+    checkbox.checked = note.isCompleted;
     checkbox.onclick = () => toggleComplete(note.id);
 
     const actions = document.createElement("div");
@@ -113,18 +107,20 @@ async function renderNotes() {
     list.appendChild(li);
   });
 }
+
 async function loadNotes() {
   renderNotes();
-  const response = await fetch("/items/read_tasks");
-  const data = await response.json();
-  notes = data.map((note, index) => ({
+  const data = await request("/items/read_tasks");
+  notes.length = 0;
+  notes.push(...data.map((note, index) => ({
     id: note.id || index,
     text: note.text,
     isCompleted: note.isCompleted
-  }));
-  saveNotes();
+  })));
+  await saveNotes();
   renderNotes();
 }
+
 async function addNote() {
   const input = document.getElementById("newNoteInput");
   const text = input.value.trim();
@@ -135,114 +131,96 @@ async function addNote() {
       text: text,
       isCompleted: false
     };
-    await addNoteServer(newNote)
+    await addNoteServer(newNote);
     notes.push(newNote);
     input.value = "";
-    saveNotes();
+    await saveNotes();
     renderNotes();
   }
 }
+
 async function toggleComplete(id) {
   const note = notes.find(n => n.id === id);
   if (note) {
-    note.completed = !note.completed;
-    await toggleCompleteServer(id)
-    saveNotes();
+    note.isCompleted = !note.isCompleted;
+    await toggleCompleteServer(id);
+    await saveNotes();
     renderNotes();
   }
 }
+
 async function editNote(id) {
-  const newText = prompt("Введите новый текст:", notes.find(n => n.id === id).text);
-  if (newText !== null && newText.trim() !== "") {
+  const oldText = notes.find(n => n.id === id).text;
+  const newText = prompt("Введите новый текст:", oldText);
+  if (newText && newText.trim()) {
     const note = notes.find(n => n.id === id);
     if (note) {
       note.text = newText.trim();
-      await editNoteServer(id, newText)
-      saveNotes();
+      await editNoteServer(id, oldText);
+      await saveNotes();
       renderNotes();
     }
   }
 }
+
 async function deleteNote(id) {
   if (confirm("Вы уверены, что хотите удалить эту заметку?")) {
     await deleteNoteServer(id);
-    notes = notes.filter(n => n.id !== id);
-    saveNotes();
+    notes.splice(notes.findIndex(n => n.id === id), 1);
+    await saveNotes();
     renderNotes();
   }
 }
 
-loadNotes();
-
-async function toggleForms() {
-  const loginForm = document.getElementById("login-form");
-  const registerForm = document.getElementById("register-form");
-
-  if (loginForm.style.display === "none") {
-    loginForm.style.display = "block";
-    registerForm.style.display = "none";
-  } else {
-    loginForm.style.display = "none";
-    registerForm.style.display = "block";
-  }
-}
-
-document.getElementById('loginForm').addEventListener('submit', async function (event) {
+async function handleLogin(event) {
   event.preventDefault();
   const username = document.getElementById('login_username').value;
   const password = document.getElementById('login_password').value;
+
   try {
-    const response = await fetch('/auth/token', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ username, password })
-    });
-    const data = await response.json();
-    if (response.ok) {
-      localStorage.setItem('access_token', data.access_token);
-      window.location.href = '/';
+    const data = await request('/auth/token', 'POST', { username, password });
+    if (data.access_token) {
+      setToken(data.access_token);
+      window.location.href = '/home';
     } else {
-      alert(data.detail || 'Слишком много запросов');
+      alert(data.detail || 'Ошибка входа');
     }
   } catch (error) {
     console.error('Ошибка:', error);
     alert('Не удалось подключиться к серверу');
   }
-});
-document.getElementById('registerForm').addEventListener('submit', async function (event) {
+}
+
+async function handleRegister(event) {
   event.preventDefault();
   const username = document.getElementById('username').value;
   const password = document.getElementById('password').value;
 
   try {
-    const response = await fetch('/users/new_user', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ username, password })
-    });
-    const data = await response.json();
-    if (response.ok) {
+    const data = await request('/users/new_user', 'POST', { username, password });
+    if (data.status) {
       alert(data.status);
       window.location.href = '/login';
       toggleForms();
     } else {
-      alert(data.detail || 'Слишком много запросов');
+      alert(data.detail || 'Ошибка регистрации');
     }
   } catch (error) {
     console.error('Ошибка:', error);
     alert('Не удалось зарегистрироваться');
   }
-});
+}
+
 function toggleForms() {
   const loginForm = document.getElementById("login-form");
   const registerForm = document.getElementById("register-form");
   loginForm.style.display = loginForm.style.display === "none" ? "block" : "none";
   registerForm.style.display = registerForm.style.display === "none" ? "block" : "none";
 }
+
 document.addEventListener('DOMContentLoaded', () => {
   document.getElementById("register-form").style.display = "none";
+  document.getElementById('loginForm')?.addEventListener('submit', handleLogin);
+  document.getElementById('registerForm')?.addEventListener('submit', handleRegister);
 });
+loadNotes();

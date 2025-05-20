@@ -34,6 +34,6 @@ app.include_router(users.router)
 async def login(request: Request):
     return templates.TemplateResponse("login.html", {"request": request})
 
-@app.get("/")
+@app.get("/home")
 async def home(request: Request):
     return templates.TemplateResponse("index.html", {"request": request})

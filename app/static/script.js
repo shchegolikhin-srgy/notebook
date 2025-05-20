@@ -109,6 +109,7 @@ async function renderNotes() {
 }
 
 async function loadNotes() {
+  renderNotes();
   const data = await request("/items/read_tasks");
   notes.length = 0;
   notes.push(...data.map((note, index) => ({
@@ -180,7 +181,7 @@ async function handleLogin(event) {
     const data = await request('/auth/token', 'POST', { username, password });
     if (data.access_token) {
       setToken(data.access_token);
-      window.location.href = '/';
+      window.location.href = '/home';
     } else {
       alert(data.detail || 'Ошибка входа');
     }

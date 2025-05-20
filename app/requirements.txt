@@ -12,4 +12,3 @@ pydantic-settings==2.2.1
 pyjwt>=2.1.10
 redis>=6.1.0
 pyjwt>=2.1.10
-python-jose>=3.3.0

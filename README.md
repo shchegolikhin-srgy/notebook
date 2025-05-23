@@ -18,16 +18,16 @@
 
 ## 🛠 Технологии
 
-- Python 3.12+
-- FastAPI
-- Jinja2 (шаблоны)
-- asyncpg / PostgreSQL
-- Uvicorn (ASGI сервер)
-- Docker (опционально)
+- python 3.12+
+- fastapi
+- jinja2 
+- asyncpg 
+- uvicorn
+- docker 
 - slowapi
 - argon2-cffi
 - python-jose
-- Pyjwt
+- pyjwt
 ---
 
 ## 🚀 Как запустить локально

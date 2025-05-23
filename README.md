@@ -27,7 +27,7 @@
 - slowapi
 - argon2-cffi
 - python-jose
-- pyjwt
+- Pyjwt
 ---
 
 ## 🚀 Как запустить локально
